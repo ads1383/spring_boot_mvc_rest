@@ -23,13 +23,16 @@ import javax.sql.DataSource;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
-    UserService userService;
-    DataSource dataSource;
+    private UserService userService;
+    private DataSource dataSource;
+    private UserOAuth2UserService userOAuth2UserService;
 
     @Autowired
-    public SecurityConfig(DataSource dataSource, UserService userService) {
+    public SecurityConfig(DataSource dataSource, UserService userService,
+                          UserOAuth2UserService userOAuth2UserService) {
         this.dataSource = dataSource;
         this.userService = userService;
+        this.userOAuth2UserService = userOAuth2UserService;
     }
 
     @Bean
@@ -61,6 +64,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // Указываем параметры логина и пароля с формы логина
                 .usernameParameter("j_username")
                 .passwordParameter("j_password")
+                .and()
+                .oauth2Login()
+                .loginPage("/login")
+                .userInfoEndpoint().userService(userOAuth2UserService)
+                .and()
                 // даем доступ к форме логина всем
                 .permitAll();
 
@@ -78,6 +86,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 // делаем страницу регистрации недоступной для авторизированных пользователей
                 .authorizeRequests()
+                .antMatchers("/oauth2/**").permitAll()
                 //страницы аутентификаци доступна всем
                 .antMatchers("/login").anonymous()
                 .antMatchers("/").hasAnyRole("ADMIN", "USER")

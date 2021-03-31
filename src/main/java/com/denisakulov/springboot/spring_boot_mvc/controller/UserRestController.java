@@ -1,15 +1,21 @@
 package com.denisakulov.springboot.spring_boot_mvc.controller;
 
+import com.denisakulov.springboot.spring_boot_mvc.model.AuthenticationProviderElse;
 import com.denisakulov.springboot.spring_boot_mvc.model.Role;
 import com.denisakulov.springboot.spring_boot_mvc.model.User;
 import com.denisakulov.springboot.spring_boot_mvc.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -41,10 +47,16 @@ public class UserRestController {
 
 	@GetMapping(value = "/user/principal")
 	public ResponseEntity<Object> getPrincipal(Principal principal) {
-		User user = userService.findByUsername(principal.getName());
+		User user = null;
+		if (principal instanceof OAuth2AuthenticationToken) {
+			user = userService.findByPrincipal(principal);
+
+		} else {
+			user = userService.findByUsername(principal.getName());
+		}
 		return user != null
 				? new ResponseEntity<>(user, HttpStatus.OK)
-				: new ResponseEntity<>("Not Found",HttpStatus.NOT_FOUND);
+				: new ResponseEntity<>("Not Found", HttpStatus.NOT_FOUND);
 	}
 
 	@GetMapping(value = "/user/{id}")

@@ -27,13 +27,17 @@ public class User implements UserDetails {
     private String lastName;
 
     @Column(name = "age")
-    private int age;
+    private Integer age;
 
     @Column(name = "email")
     private String username; // уникальное значение
 
+    @Column(name = "auth_provider")
+    private String authProvider;
+
     @Column(name = "password")
     private String password;
+
 
     @Column(name = "enabled")
     private Boolean enabled;
@@ -48,7 +52,7 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String firstName, String lastName, int age,
+    public User(String firstName, String lastName, Integer age,
                 String username, String password, Set<Role> roles, Boolean enabled) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -157,6 +161,14 @@ public class User implements UserDetails {
 
         return roleNamesByUser.stream().map(p -> p.startsWith("ROLE") ? p.substring(5) : p)
                                 .collect(Collectors.toList());
+    }
+
+    public String getAuthProvider() {
+        return authProvider;
+    }
+
+    public void setAuthProvider(String authProvider) {
+        this.authProvider = authProvider;
     }
 
     @Override

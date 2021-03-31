@@ -3,18 +3,21 @@ package com.denisakulov.springboot.spring_boot_mvc.service;
 
 import com.denisakulov.springboot.spring_boot_mvc.dao.RoleRepository;
 import com.denisakulov.springboot.spring_boot_mvc.dao.UserRepository;
+import com.denisakulov.springboot.spring_boot_mvc.model.AuthenticationProviderElse;
 import com.denisakulov.springboot.spring_boot_mvc.model.Role;
 import com.denisakulov.springboot.spring_boot_mvc.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.security.Principal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -92,5 +95,35 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toSet());
     }
 
+    @Override
+    public User findByPrincipal(Principal principal) {
+        OAuth2AuthenticationToken oAuth2Authentication = (OAuth2AuthenticationToken) principal;
+        Map<String, Object> map = oAuth2Authentication.getPrincipal().getAttributes();
+        String username = (String) map.get("email");
+        User userGetBase = findByUsername(username);
+        if (userGetBase == null) {
+            User userOath = new User();
+            userOath.setFirstName((String) map.get("given_name"));
+            userOath.setLastName((String) map.get("family_name"));
+            userOath.setUsername((String) map.get("email"));
+            Set<Role> roles = new HashSet<>();
+            Role role= new Role(2L, "ROLE_USER");
+            roles.add(role);
+            userOath.setRoles(roles);
+            userOath.setAge(0);
+            userOath.setAuthProvider("GOOGLE");
+            userOath.setEnabled(true);
+            save(userOath);
+            return userOath;
 
+        } else {
+            userGetBase.setFirstName((String) map.get("given_name"));
+            userGetBase.setLastName((String) map.get("family_name"));
+            userGetBase.setUsername((String) map.get("email"));
+            userGetBase.setAuthProvider("GOOGLE");
+            userGetBase.setEnabled(true);
+            save(userGetBase);
+           return userGetBase;
+        }
+    }
 }
