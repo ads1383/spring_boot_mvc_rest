@@ -10,6 +10,7 @@ function updateUser(id, upVal) {
     $('#edAge').val(user.age);
     $('#edEmail').val(user.username);
     $('#edPassword').val(user.password);
+    $('#edAuthProvider').val(user.password);
     buttonUpt.on('click', function () {
       let i = 0;
       jData['roles'] = [];
@@ -27,6 +28,12 @@ function updateUser(id, upVal) {
               jData[this.name] = true;
             } else {
               jData[this.name] = false;
+            }
+          } else if (this.name === 'authProvider') {
+            if ($(this).val() ==='') {
+              jData[this.name] = "LOCAL";
+            } else {
+              jData[this.name] = $(this).val();
             }
           } else {
             jData[this.name] = $(this).val();
