@@ -10,7 +10,8 @@ function updateUser(id, upVal) {
     $('#edAge').val(user.age);
     $('#edEmail').val(user.username);
     $('#edPassword').val(user.password);
-    $('#edAuthProvider').val(user.password);
+    $('#edAuthProvider').val(user.authProvider);
+    // $('#edAuthProvider').val("LOCAL");
     buttonUpt.on('click', function () {
       let i = 0;
       jData['roles'] = [];
